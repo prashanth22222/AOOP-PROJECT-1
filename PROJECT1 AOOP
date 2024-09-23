@@ -1,0 +1,106 @@
+// Main Application Class
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class EmployeeAppApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(EmployeeAppApplication.class, args);
+    }
+}
+
+// Employee Model Class
+class Employee {
+    private int id;
+    private String name;
+    private String department;
+
+    public Employee(int id, String name, String department) {
+        this.id = id;
+        this.name = name;
+        this.department = department;
+    }
+
+    // Getters and Setters
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public String getDepartment() { return department; }
+    public void setDepartment(String department) { this.department = department; }
+
+    @Override
+    public String toString() {
+        return "Employee{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", department='" + department + '\'' +
+                '}';
+    }
+}
+
+// Employee Service Layer
+import org.springframework.stereotype.Service;
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+public class EmployeeService {
+
+    private List<Employee> employeeList = new ArrayList<>();
+
+    // Initialize some dummy data
+    public EmployeeService() {
+        employeeList.add(new Employee(1, "John Doe", "Engineering"));
+        employeeList.add(new Employee(2, "Jane Smith", "Marketing"));
+    }
+
+    public List<Employee> getAllEmployees() {
+        return employeeList;
+    }
+
+    public Employee getEmployeeById(int id) {
+        return employeeList.stream()
+                .filter(employee -> employee.getId() == id)
+                .findFirst()
+                .orElse(null);
+    }
+
+    public void addEmployee(Employee employee) {
+        employeeList.add(employee);
+    }
+}
+
+// Employee Controller Layer
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/employees")
+public class EmployeeController {
+
+    @Autowired
+    private EmployeeService employeeService;
+
+    // Get all employees
+    @GetMapping
+    public List<Employee> getAllEmployees() {
+        return employeeService.getAllEmployees();
+    }
+
+    // Get employee by ID
+    @GetMapping("/{id}")
+    public Employee getEmployeeById(@PathVariable int id) {
+        return employeeService.getEmployeeById(id);
+    }
+
+    // Add a new employee
+    @PostMapping
+    public void addEmployee(@RequestBody Employee employee) {
+        employeeService.addEmployee(employee);
+    }
+}
